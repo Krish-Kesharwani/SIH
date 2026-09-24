@@ -216,3 +216,65 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+
+# =====================================
+# UAV Reconstruction Project
+# =====================================
+
+# Frontend
+frontend/node_modules/
+frontend/dist/
+
+# Backend generated data
+backend/uploads/*
+backend/outputs/*
+
+# Keep folder structure
+!backend/uploads/.gitkeep
+!backend/outputs/.gitkeep
+
+# Extracted frames
+backend/uploads/frames/
+
+# Videos
+*.mp4
+*.avi
+*.mov
+*.mkv
+
+# Images
+*.jpg
+*.jpeg
+*.png
+
+# Point Clouds
+*.ply
+*.pcd
+*.xyz
+
+# Meshes
+*.obj
+*.stl
+*.fbx
+*.gltf
+*.glb
+
+# Gaussian Splatting
+*.splat
+
+# ML Models
+*.pt
+*.pth
+*.ckpt
+*.onnx
+
+# Temporary outputs
+backend/temp/
+backend/cache/
+
+# VS Code
+.vscode/
+
+# JetBrains
+.idea/

@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+python-multipart
+opencv-python
+numpy
+scipy
+open3d
+pandas
+openpyxl
+torch
+torchvision
+transformers
+pillow

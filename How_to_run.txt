@@ -1,0 +1,13 @@
+Download Node.js, and Python
+
+*Always maintain indentation in python*
+in frontend :-
+    npm install
+
+in backend :-
+    ip install -r requirements.txt
+
+
+To run:
+    Frontend: npm run dev
+    Backend: uvicorn main:app --reload

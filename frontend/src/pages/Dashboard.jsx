@@ -2,8 +2,100 @@ import { useState } from "react";
 import StepIndicator from "../components/Wizard/StepIndicator";
 
 export default function Dashboard() {
-    const [currentStep, setCurrentStep] = useState(0);
+  const [currentStep, setCurrentStep] = useState(0);
+  const [clearing, setClearing] = useState(false);
+  const [frameCount, setFrameCount] = useState(0);
+  const [processing, setProcessing] = useState(false);
+  const [videoFile, setVideoFile] = useState(null);
+  const [uploading, setUploading] = useState(false);
+  const [uploadedVideo, setUploadedVideo] = useState("");
+  const clearProject = async () => {
+    try {
+      setClearing(true);
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/clear-project",
+        {
+          method: "DELETE",
+        }
+      );
+
+      const data = await response.json();
+
+      alert(data.message || "Project Cleared");
+
+    } catch (error) {
+      console.error(error);
+      alert("Failed to clear project");
+    } finally {
+      setClearing(false);
+    }
+  };
+  const uploadVideo = async () => {
+  if (!videoFile) {
+    alert("Select a video first");
+    return;
+  }
+
+  try {
+    setUploading(true);
+
+    const formData = new FormData();
+
+    formData.append(
+      "video",
+      videoFile
+    );
+
+    const response = await fetch(
+      "http://127.0.0.1:8000/upload-video",
+      {
+        method: "POST",
+        body: formData,
+      }
+    );
+
+    const data = await response.json();
+
+    setUploadedVideo(data.filename);
+
+    alert("Video Uploaded Successfully");
+
+  } catch (error) {
+    console.error(error);
+    alert("Upload Failed");
+  } finally {
+    setUploading(false);
+  }
+};
+  const startReconstruction = async () => {
+    try {
+      setProcessing(true);
+
+      const response = await fetch(
+        "http://127.0.0.1:8000/extract-frames",
+        {
+          method: "POST",
+        }
+      );
+
+      const data = await response.json();
+
+      setFrameCount(data.frames_saved);
+
+      alert(
+        `${data.frames_saved} frames extracted`
+      );
+
+    } catch (error) {
+      console.error(error);
+      alert("Reconstruction Failed");
+    } finally {
+      setProcessing(false);
+    }
+  };
   return (
+    
     <div className="max-w-7xl mx-auto p-8">
 
       <div className="mb-8">
@@ -50,6 +142,10 @@ export default function Dashboard() {
 
                 <input
                 type="file"
+                accept="video/*"
+                onChange={(e) =>
+                  setVideoFile(e.target.files[0])
+                }
                 className="
                 mt-2
                 w-full
@@ -65,7 +161,12 @@ export default function Dashboard() {
                 file:text-white
                 file:hover:bg-cyan-600
                 "
-                />
+              />
+              {videoFile && (
+                <p className="text-cyan-400 text-sm mt-2 truncate">
+                  Selected: {videoFile.name}
+                </p>
+              )}
             </label>
 
             <label className="block">
@@ -117,6 +218,27 @@ export default function Dashboard() {
                 "
                 />
             </label>
+            <button
+                onClick={uploadVideo}
+                disabled={uploading}
+                className="
+                w-full
+                mt-4
+                py-3
+                rounded-xl
+                bg-green-500
+                hover:bg-green-600
+                font-semibold
+                "
+              >
+                {uploading ? "Uploading..." : "Upload Video"}
+              </button>
+
+              {uploadedVideo && (
+                <p className="text-green-400 mt-3 truncated">
+                  Uploaded: {uploadedVideo}
+                </p>
+              )}
             </div>
         </div>
 
@@ -157,33 +279,43 @@ export default function Dashboard() {
 
       </div>
 
-      <div className="mt-8">
-        <button
-          className="
-            px-8
-            py-4
-            rounded-2xl
-            bg-cyan-500
-            hover:bg-cyan-600
-            font-semibold
-            shadow-lg
-            shadow-cyan-500/20
-            transition-all
-            duration-300
-            "
-        >
-        Generate 3D Model
-        </button>
-        <div
-  className="
-  mt-10
-  bg-slate-900
-  rounded-2xl
-  border
-  border-cyan-500/10
-  p-6
-  "
->
+      <div className="mt-8 flex gap-4">
+
+    <button
+      onClick={startReconstruction}
+      disabled={processing}
+      className="
+      px-8
+      py-4
+      rounded-xl
+      bg-cyan-500
+      hover:bg-cyan-600
+      font-semibold
+      disabled:opacity-50
+      "
+    >
+      {processing
+        ? "Processing..."
+        : "Start Reconstruction"}
+    </button>
+
+    <button
+      onClick={clearProject}
+      disabled={clearing}
+      className="
+      px-8
+      py-4
+      rounded-xl
+      bg-red-500
+      hover:bg-red-600
+      font-semibold
+      disabled:opacity-50
+      "
+    >
+      {clearing ? "Clearing..." : "Clear Project"}
+    </button>
+
+  </div>
   <h2 className="text-xl font-semibold mb-4">
     Project Status
   </h2>
@@ -196,7 +328,7 @@ export default function Dashboard() {
       </p>
 
       <p className="text-2xl font-bold mt-2">
-        0
+        {frameCount}
       </p>
     </div>
 
@@ -222,8 +354,6 @@ export default function Dashboard() {
 
   </div>
 </div>
-      </div>
-
-    </div>
+    
   );
 }
